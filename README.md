@@ -1,37 +1,31 @@
-# Smart Home Backend API (Version 2)
+# 🔌 Smart Home Backend API (v2)
 
-A simple RESTful API for managing IoT devices in a smart home environment. Built using **Node.js**, **Express**, and **lowdb** (lightweight JSON-based database).
-
-- ✅ Real-time MQTT data ingestion from sensors
-- ✅ Live updates via WebSocket
+A simple RESTful API for managing IoT devices in a smart home. Built using **Node.js**, **Express**, **lowdb**, **MQTT.js**, and **WebSockets**.
 
 ---
 
 ## 🚀 Features
 
-- Register new IoT devices
-- List all registered devices
-- Retrieve a device by ID
-- Update a device’s status or config
-- Delete a device
-- Receive sensor updates in real-time via MQTT
-- Broadcast device updates to clients via WebSocket
-- Data persists to `db.json`
+- Register, update, list, and delete IoT devices via REST API
+- Real-time sensor data ingestion via MQTT
+- WebSocket broadcasting of device updates to connected clients
+- JSON-based storage using lowdb (`db.json`)
+- Basic input validation and error handling
 
 ---
 
-## 📦 Tech Stack
+## 🧱 Tech Stack
 
 - Node.js (ES Modules)
 - Express.js
-- lowdb v7 (file-based database)
-- UUID for unique device IDs
-- MQTT.js for MQTT client
-- ws for WebSocket server
+- LowDB (v7)
+- MQTT.js (client)
+- `ws` (WebSocket server)
+- UUID for device IDs
 
 ---
 
-## 🔧 Installation
+## 📦 Installation
 
 ```bash
 git clone https://github.com/willis-poon-github/smart-home-backend-v2.git
@@ -41,24 +35,36 @@ npm install
 
 ---
 
-## ▶️ Usage
-
-Start the development server:
+## ▶️ Start the Server
 
 ```bash
 npm run dev
 ```
 
-Server runs at:  
-`http://localhost:3000`
+- Server runs at: `http://localhost:3000`
+- WebSocket available at: `ws://localhost:3000/`
+- MQTT broker expected at: `mqtt://localhost:1883`
+
+To start a local MQTT broker:
+
+```bash
+brew services start mosquitto
+```
 
 ---
 
-## 📘 API Endpoints
+## 📘 REST API Endpoints
 
-### ✅ Register a new device  
-**POST** `/devices`  
-Request body:
+| Method | Endpoint          | Description              |
+|--------|-------------------|--------------------------|
+| POST   | `/devices`        | Register a new device    |
+| GET    | `/devices`        | List all devices         |
+| GET    | `/devices/:id`    | Get device by ID         |
+| PATCH  | `/devices/:id`    | Update device data       |
+| DELETE | `/devices/:id`    | Delete device by ID      |
+
+### Example `POST /devices` Request Body
+
 ```json
 {
   "name": "Living Room Light",
@@ -70,44 +76,99 @@ Request body:
 
 ---
 
-### 📋 List all devices  
-**GET** `/devices`  
+## 📡 MQTT Integration
 
----
+- Subscribes to: `sensors/+/data`
+- Parses incoming JSON payloads:
+  - If name matches an existing device → update
+  - Else → add new device with UUID
+- Updates saved to `db.json`
+- Broadcasted to all WebSocket clients
 
-### 🔍 Get device by ID  
-**GET** `/devices/:id`
+### Example Payload
 
----
-
-### 🔄 Update a device  
-**PATCH** `/devices/:id`  
-Request body:
 ```json
 {
-  "status": "on",
-  "config": { "brightness": 100 }
+  "name": "Temperature Sensor",
+  "type": "sensor",
+  "status": "active",
+  "config": { "unit": "C" }
 }
+```
+
+### Simulate MQTT Data
+
+```bash
+node test/mqtt-test.js
+```
+
+Or using CLI:
+
+```bash
+mosquitto_pub -h localhost -t sensors/temp/data -m '{"name":"Sensor A","type":"sensor","status":"on","config":{"value":25}}'
 ```
 
 ---
 
-### ❌ Delete a device  
-**DELETE** `/devices/:id`
+## 🧪 Test Examples
+
+### ✅ MQTT Test Commands
+
+```bash
+# New sensor
+mosquitto_pub -h localhost -t sensors/temp/data -m '{
+  "name": "Temperature Sensor",
+  "type": "sensor",
+  "status": "active",
+  "config": { "unit": "20C" }
+}'
+
+# Update sensor config
+mosquitto_pub -h localhost -t sensors/temp/data -m '{
+  "name": "Temperature Sensor",
+  "config": { "unit": "21C" }
+}'
+```
+
+### 🌐 REST API (using curl)
+
+```bash
+# List all devices
+curl http://localhost:3000/devices
+
+# Get by ID
+curl http://localhost:3000/devices/<id>
+```
+
+### 🔌 WebSocket Testing
+
+1. Open `test/test.html` in a browser using `file:///` protocol  
+2. Messages will log in DevTools console on real-time updates
 
 ---
 
-## 📁 Data Example (`db.json`)
+## 🔐 Validation & Error Handling
+
+| Scenario                   | Response                      |
+|---------------------------|-------------------------------|
+| Missing required fields    | `400 Bad Request`              |
+| Invalid `config` format    | `400 Bad Request`              |
+| Nonexistent device ID      | `404 Not Found`                |
+| `PATCH` modifies `id`      | `id` field is ignored          |
+
+---
+
+## 📁 Example db.json
 
 ```json
 {
   "devices": [
     {
-      "id": "6a207124-0036-48e6-83d0-5d9f7c7d723b",
+      "id": "uuid-1234",
       "name": "Living Room Light",
       "type": "light",
       "status": "off",
-      "config": {}
+      "config": { "brightness": 80 }
     }
   ]
 }
@@ -115,175 +176,7 @@ Request body:
 
 ---
 
-## 📡 MQTT Integration
-
-- Connects to a local MQTT broker at `mqtt://localhost:1883`
-- Subscribes to topics like `sensors/+/data`
-- Parses incoming JSON payloads and either:
-  - Updates existing device if name matches
-  - Adds a new device with `uuid` as ID
-- Broadcasts updates to connected WebSocket clients
-- Persists all changes to `db.json`
-
-### Example MQTT Payload
-
-```json
-{
-  "name": "Temperature Sensor",
-  "type": "sensor",
-  "status": "active",
-  "config": {
-    "unit": "C"
-  }
-}
-```
-
-### To Test MQTT
-
-Run:
-
-```bash
-node mqtt-test.js
-```
-
-This script publishes sample sensor data to your MQTT broker to simulate incoming device messages.
-
----
-
-## 🧪 Testing Setup
-
-```bash
-npm install
-npm run dev
-```
-
-Ensure you have an MQTT broker running:
-
-```bash
-brew services start mosquitto
-```
-
-Open a WebSocket client or browser dev console to connect to:
-
-```
-ws://localhost:3000/
-```
-
----
-
-
-# ✅ MQTT and REST API Test Examples for Smart Home Backend
-
----
-
-## ✅ MQTT Test Examples (via `mosquitto_pub`)
-
-### 1. Send simple message to a test topic
-```bash
-mosquitto_pub -h localhost -t "sensors/temp/data" -m "hello world"
-```
-
----
-
-### 2. Publish a new temperature sensor via MQTT
-```bash
-mosquitto_pub -h localhost -t sensors/temp/data -m '{
-  "name": "Temperature Sensor",
-  "type": "sensor",
-  "status": "active",
-  "config": { "unit": "20C" }
-}'
-```
-
----
-
-### 3. Update the temperature sensor config (simulate new data)
-```bash
-mosquitto_pub -h localhost -t sensors/temp/data -m '{
-  "name": "Temperature Sensor",
-  "type": "sensor",
-  "status": "active",
-  "config": { "unit": "21C" }
-}'
-```
-
----
-
-### 4. Add a humidity sensor
-```bash
-mosquitto_pub -h localhost -t sensors/temp/data -m '{
-  "name": "Humidity Sensor",
-  "type": "sensor",
-  "status": "active",
-  "config": { "unit": "60%" }
-}'
-```
-
----
-
-### 5. Simulate frequent updates from "Living Room Sensor"
-```bash
-mosquitto_pub -h localhost -t sensors/temp/data -m '{
-  "name": "Living Room Sensor",
-  "type": "sensor",
-  "status": "on",
-  "config": { "value": 22.5 }
-}'
-```
-
----
-
-## 🌐 REST API Test Examples (via `curl`)
-
-### 1. Get all devices
-```bash
-curl http://localhost:3000/devices
-```
-
----
-
-### 2. Get device by ID (example: Temperature Sensor)
-```bash
-curl http://localhost:3000/devices/92137558-3f01-4e26-a5de-84f423ce2db1
-```
-
----
-
-## 🔌 WebSocket Testing
-
-You can test real-time WebSocket updates using a simple HTML page.
-
-### Example: `test.html` in root directory
-
-Open it in your browser using:
-
-```
-file:///path/to/your/test.html
-```
-
-Once opened, it will connect to your WebSocket server and log messages in the browser console.
-
----
-
-## 🔐 Validation & Error Handling
-
-The API includes basic error handling for common edge cases:
-
-- **Missing Required Fields:**  
-  `POST /devices` returns `400 Bad Request` if `name`, `type`, or `status` is missing.
-
-- **Invalid `config` Format:**  
-  Both `POST` and `PATCH` endpoints validate that `config` (if provided) is a valid JSON object.
-
-- **Nonexistent Device ID:**  
-  `GET`, `PATCH`, and `DELETE /devices/:id` return `404 Not Found` if the ID does not match any existing device.
-
-- **Sanitization:**  
-  `PATCH` requests ignore and discard any attempt to modify the `id` field.
-
----
-
-## 🧑‍💻 Author
+## 👨‍💻 Author
 
 Willis Poon  
 GitHub: [@willis-poon-github](https://github.com/willis-poon-github)
