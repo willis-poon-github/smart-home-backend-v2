@@ -1,6 +1,6 @@
 ### Summary of My Approach and Challenges
 
-For this project, I developed a lightweight Smart Home Backend API using **Node.js**, **Express**, and **lowdb**. The architecture was designed with modularity and clarity in mind, separating concerns across RESTful device management, MQTT data ingestion, and WebSocket broadcasting.
+For this project, I developed a lightweight Smart Home Backend API using **Node.js**, **Express**, and **lowdb**. The architecture was designed with simplicity and clarity in mind, separating concerns across RESTful device management, MQTT data ingestion, and WebSocket broadcasting.
 
 **Key implementation highlights:**
 - Connected to an MQTT broker to simulate real-time IoT device data.
@@ -14,7 +14,10 @@ For this project, I developed a lightweight Smart Home Backend API using **Node.
 - Installing and running Mosquitto on **macOS Sequoia 15** involved resolving permissions and dealing with partial Homebrew support for the new OS.
 
 **Potential improvements if more time were available:**
-- Integrate schema validation using tools like **Joi** or **Zod**.
+- Updated Structure:
+  - Refactor source files into folders like `/controllers`, `/routes`, and `/services` to enforce separation of concerns.
+  - Move app setup out of the root directory and rename entry point as `index.js` or `server.js`.
+- Integrate schema validation.
 - Add authentication and user-level device access controls.
 - Implement reconnection strategies on the WebSocket client side.
 - Dockerize the app for portable deployment and consistent development environments.
