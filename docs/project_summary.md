@@ -1,20 +1,20 @@
 ### Summary of My Approach and Challenges
 
-In this project, I built a lightweight Smart Home Backend API using Node.js, Express, and lowdb. The architecture emphasizes modularity and simplicity, with separate modules for MQTT data ingestion, WebSocket broadcasting, and RESTful device management.
+For this project, I developed a lightweight Smart Home Backend API using **Node.js**, **Express**, and **lowdb**. The architecture was designed with modularity and clarity in mind, separating concerns across RESTful device management, MQTT data ingestion, and WebSocket broadcasting.
 
 **Key implementation highlights:**
-- Integrated an MQTT broker to simulate real-time IoT device data.
+- Connected to an MQTT broker to simulate real-time IoT device data.
 - Broadcast device updates to connected WebSocket clients.
-- Used UUIDs for unique device identifiers and lowdb for JSON-based persistence.
-- Implemented input validation and robust error handling to guard against malformed data and invalid device access.
+- Used UUIDs for unique device identifiers and `lowdb` for JSON-based persistence.
+- Included input validation and robust error handling to manage malformed input and invalid device access.
 
-**Interesting challenges:**
-- Getting WebSocket connections to work consistently when using live reload (nodemon) required coordination between client reconnect logic and backend stability.
-- Managing MQTT message parsing and ensuring idempotent device updates demanded careful design to avoid duplicates or partial overwrites.
-- Debugging permission issues on macOS during Mosquitto and Homebrew installation required fine-grained command-line adjustments.
+**Challenges encountered:**
+- Establishing stable WebSocket connections alongside live reload (`nodemon`) required coordination between client reconnection logic and backend stability (resolved via `nodemon.json` config).
+- Ensuring MQTT messages updated devices correctly required multiple test iterations and payload adjustments.
+- Installing and running Mosquitto on **macOS Sequoia 15** involved resolving permissions and dealing with partial Homebrew support for the new OS.
 
-**If more time were available**, improvements would include:
-- Better schema validation (e.g., using Joi or Zod).
-- Real authentication and user-specific device filtering.
-- WebSocket reconnection strategies for clients.
-- Dockerization for easier deployment and testing.
+**Potential improvements if more time were available:**
+- Integrate schema validation using tools like **Joi** or **Zod**.
+- Add authentication and user-level device access controls.
+- Implement reconnection strategies on the WebSocket client side.
+- Dockerize the app for portable deployment and consistent development environments.
