@@ -1,18 +1,22 @@
 import { LowSync } from 'lowdb';
 import { JSONFileSync } from 'lowdb/node';
 
-// Set up adapter and db instance with default structure
+// ⚙️ Create a JSON file adapter (data stored in db.json)
 const adapter = new JSONFileSync('db.json');
+
+// 📦 Initialize LowDB with default structure
 const db = new LowSync(adapter, {
-  defaultData: { devices: [] } // required in lowdb v7+
+  defaultData: { devices: [] } // required in lowdb v7+ to initialize structure
 });
 
+// 🔄 Load the database from file
 db.read();
 
-// 🛠 If file is new, this ensures it's created
+// 🛠 If file is empty or improperly structured, initialize with default data
 if (!db.data || !db.data.devices) {
   db.data = { devices: [] };
-  db.write(); // ✅ This actually writes db.json to disk
+  db.write(); // ✅ Persist the default structure to disk
 }
 
+// 🚀 Export the db instance for use in other modules
 export default db;

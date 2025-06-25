@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Test</title>
+</head>
+<body>
+  <h1>WebSocket Dashboard</h1>
+  <script>
+    const socket = new WebSocket('ws://localhost:3000/');
+
+    socket.onopen = () => {
+      console.log('✅ Connected');
+    };
+
+    socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      console.log('📨 Message:', message);
+    };
+
+    socket.onclose = () => {
+      console.log('❌ Disconnected');
+    };
+
+    socket.onerror = (err) => {
+      console.error('❗ WebSocket error:', err);
+    };
+  </script>
+</body>
+</html>

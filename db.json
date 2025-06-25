@@ -15,6 +15,33 @@
       "config": {
         "brightness": 100
       }
+    },
+    {
+      "id": "92137558-3f01-4e26-a5de-84f423ce2db1",
+      "name": "Temperature Sensor",
+      "type": "sensor",
+      "status": "active",
+      "config": {
+        "unit": "21C"
+      }
+    },
+    {
+      "id": "3b3d1a55-78bc-4fcb-aabb-77beaa45d016",
+      "name": "Humidity Sensor",
+      "type": "sensor",
+      "status": "active",
+      "config": {
+        "unit": "%"
+      }
+    },
+    {
+      "id": "b401757c-c7a0-41ee-ac85-22574e37c02c",
+      "name": "Living Room Sensor",
+      "type": "sensor",
+      "status": "on",
+      "config": {
+        "value": 22.5
+      }
     }
   ]
 }
