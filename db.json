@@ -1,0 +1,20 @@
+{
+  "devices": [
+    {
+      "id": "93b0e085-8fe4-4d6f-a3b0-94c1d2d5fe21",
+      "name": "Kitchen Sensor",
+      "type": "sensor",
+      "status": "on",
+      "config": {}
+    },
+    {
+      "id": "1bc5828e-ac7a-4fb3-830e-28c08e7975ef",
+      "name": "Living Room Light",
+      "type": "light",
+      "status": "on",
+      "config": {
+        "brightness": 100
+      }
+    }
+  ]
+}
